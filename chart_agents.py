@@ -8,7 +8,15 @@ from typing import Optional, Literal
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load environment variables (handle encoding errors on Windows)
+try:
+    load_dotenv()
+except UnicodeDecodeError:
+    print("⚠️ Warning: .env file has encoding issues. Please save it as UTF-8.")
+    print("   Using environment variables from system instead.")
+except Exception as e:
+    print(f"⚠️ Warning: Could not load .env file: {e}")
+
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 
