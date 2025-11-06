@@ -39,8 +39,8 @@ if "force_workflow" not in st.session_state:
 
 # ===== MAIN UI =====
 
-st.title("Swine Farm AI Assistant")
-st.markdown("**Powered by OpenAI Agent SDK + Real Snowflake Data + Interactive Charts 📊**")
+st.title("🐷 Swine Farm AI Assistant")
+st.markdown("**Powered by OpenAI Agent SDK • Real Snowflake Data • Interactive Charts with Plotly**")
 
 
 # ===== SIDEBAR =====
@@ -416,7 +416,7 @@ with stylable_container(
     css_styles="""
     {
         position: fixed;
-        bottom: 130px;
+        bottom: 100px;
         left: 0;
         width: 90%;
         display: flex;
@@ -424,6 +424,7 @@ with stylable_container(
         box-sizing: border-box;
         margin-left: 5%;
         margin-right: 5%;
+        padding-bottom: 10px;
     }
     """,
 ):
@@ -467,22 +468,5 @@ with stylable_container(
 
 
 # ===== FOOTER =====
-
-st.markdown(
-    """
-    <div style="
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        text-align: center;
-        font-size: 0.8em;
-        padding: 8px 0;
-        border-top: 1px solid #e6e6e6;
-        z-index: 1000;
-    ">
-        Powered by OpenAI Agent SDK • Real Snowflake Data • Interactive Charts with Plotly
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+# Note: Footer removed to prevent overlap with quick action buttons and chat input
+# The information is already shown in the sidebar and page title
