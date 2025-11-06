@@ -219,8 +219,7 @@ def render_chart_result(result, duration):
             fig = render_chart(chart_spec, raw_results)
 
             # Add threshold lines for mortality charts
-            if "mortality" in chart_spec.get("title", "").lower() or \
-               "dc_percent" in str(chart_spec.get("y_axis", "")).lower():
+            if "mortality" in chart_spec.get("title", "").lower() or "dc_percent" in str(chart_spec.get("y_axis", "")).lower():
                 fig = add_threshold_lines(fig, {
                     "Critical (5%)": 5.0,
                     "Warning (3%)": 3.0
