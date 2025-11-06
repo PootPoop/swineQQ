@@ -184,14 +184,20 @@ The app will open in your browser at `http://localhost:8501`
    print(response.choices[0].message.content)
    ```
 
-### Snowflake Connection Error
+### Snowflake Connection Error / Network Policy Error
 
-**Problem:** Can't connect to Snowflake database.
+**Problem:** Can't connect to Snowflake database or see "Network policy is required" error.
 
 **Solution:**
 
-1. Verify all `JAPFA_*` variables in `.env` are correct
-2. Test connection:
+1. **If you see "Network policy is required":**
+   - Your IP address is not whitelisted
+   - See detailed guide: [NETWORK_POLICY_WORKAROUND.md](NETWORK_POLICY_WORKAROUND.md)
+   - **Quick fix:** Switch to "SQLite (Local Testing)" in the sidebar
+
+2. Verify all `JAPFA_*` variables in `.env` are correct
+
+3. Test connection:
    ```python
    import snowflake.connector
    conn = snowflake.connector.connect(
@@ -203,7 +209,9 @@ The app will open in your browser at `http://localhost:8501`
    conn.close()
    ```
 
-3. Check Snowflake firewall/network settings
+4. Check Snowflake firewall/network settings
+
+5. **Temporary workaround:** Use local SQLite mode (see "Database Connection" in sidebar)
 
 ### Charts Not Displaying
 

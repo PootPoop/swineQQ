@@ -48,9 +48,25 @@ st.markdown("**Powered by OpenAI Agent SDK + Real Snowflake Data + Interactive C
 with st.sidebar:
     st.header("⚙️ System Info")
     st.success("✅ Agent SDK Active")
-    st.info("💾 Snowflake Connected")
     st.info("🛡️ Prompt & SQL Injection Detection")
     st.info("📊 Interactive Charts Enabled")
+
+    st.markdown("---")
+
+    st.header("💾 Database Connection")
+
+    database_mode = st.radio(
+        "Select database:",
+        ["Snowflake (Production)", "SQLite (Local Testing)"],
+        help="Snowflake requires network access. Use SQLite for local testing if you have network policy restrictions."
+    )
+
+    use_local_db = (database_mode == "SQLite (Local Testing)")
+
+    if use_local_db:
+        st.warning("⚠️ Using local SQLite database. Make sure you have created swine_data.db in the data/ folder.")
+    else:
+        st.info("💾 Snowflake Connection Enabled")
 
     st.markdown("---")
 
@@ -278,7 +294,10 @@ def render_chart_result(result, duration):
             col1.metric("Duration", f"{duration:.2f}s")
             col2.metric("Rows", len(raw_results))
             col3.metric("Chart Type", chart_spec.get("chart_type", "N/A").title())
-            col4.metric("Security", "✅ Passed")
+            col4.metric("Database", result.get("database", "Snowflake"))
+
+            # Show security status
+            st.success("🛡️ Security: Passed")
         expanders.append({
             "title": "⚡ Performance",
             "type": "metrics",
@@ -286,6 +305,7 @@ def render_chart_result(result, duration):
                 "Duration": f"{duration:.2f}s",
                 "Rows": len(raw_results),
                 "Chart Type": chart_spec.get("chart_type", "N/A").title(),
+                "Database": result.get("database", "Snowflake"),
                 "Security": "✅ Passed"
             }
         })
@@ -303,6 +323,28 @@ def render_chart_result(result, duration):
         # Error handling
         error_msg = result.get("error", "Unknown error")
         st.error(f"❌ Error: {error_msg}")
+
+        # Show suggestion if available (e.g., network policy workaround)
+        if result.get("suggestion"):
+            st.info(f"💡 Suggestion: {result['suggestion']}")
+
+        # Special handling for network policy errors
+        if "network policy" in error_msg.lower() or "failed to connect" in error_msg.lower():
+            st.warning("🔒 **Snowflake Network Policy Error**")
+            st.markdown("""
+            Your IP address is not whitelisted in Snowflake's network policy.
+
+            **Solutions:**
+            1. **Use Local SQLite Mode** (recommended for testing):
+               - Go to sidebar → **Database Connection** → Select **"SQLite (Local Testing)"**
+               - Make sure you have a `data/swine_data.db` file
+
+            2. **Contact Snowflake Admin**:
+               - Ask to whitelist your IP address
+               - Or get VPN access to an allowed network
+
+            3. **Use VPN** if your organization provides one
+            """)
 
         if result.get("sql_query"):
             with st.expander("❌ Failed SQL Query"):
@@ -339,7 +381,8 @@ def process_user_query(prompt):
                     force_chart=force_chart,
                     force_text=force_text,
                     use_mcp_server=use_mcp,
-                    mcp_server_url=mcp_url
+                    mcp_server_url=mcp_url,
+                    use_local_db=use_local_db
                 )
 
                 result = run_unified_workflow(workflow_input)

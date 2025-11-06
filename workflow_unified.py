@@ -25,6 +25,7 @@ class UnifiedWorkflowInput(BaseModel):
     force_text: bool = False   # Force text workflow even if chart detected
     use_mcp_server: bool = False
     mcp_server_url: Optional[str] = None
+    use_local_db: bool = False  # Use local SQLite instead of Snowflake
 
 
 def run_unified_workflow(workflow_input: UnifiedWorkflowInput):
@@ -72,12 +73,34 @@ def run_unified_workflow(workflow_input: UnifiedWorkflowInput):
     # Route to appropriate workflow
     if intent == "chart":
         print("📊 Routing to CHART workflow...")
-        chart_input = ChartWorkflowInput(
-            input_as_text=user_input,
-            use_mcp_server=workflow_input.use_mcp_server,
-            mcp_server_url=workflow_input.mcp_server_url
-        )
-        result = run_chart_workflow(chart_input)
+
+        # Try to import local version if use_local_db is True
+        if workflow_input.use_local_db:
+            try:
+                from workflow_chart_local import run_chart_workflow as run_chart_local, ChartWorkflowInput as LocalInput
+                chart_input = LocalInput(
+                    input_as_text=user_input,
+                    use_mcp_server=workflow_input.use_mcp_server,
+                    mcp_server_url=workflow_input.mcp_server_url,
+                    use_local_db=True
+                )
+                result = run_chart_local(chart_input)
+            except Exception as e:
+                print(f"⚠️ Local SQLite mode failed: {e}, falling back to Snowflake")
+                chart_input = ChartWorkflowInput(
+                    input_as_text=user_input,
+                    use_mcp_server=workflow_input.use_mcp_server,
+                    mcp_server_url=workflow_input.mcp_server_url
+                )
+                result = run_chart_workflow(chart_input)
+        else:
+            chart_input = ChartWorkflowInput(
+                input_as_text=user_input,
+                use_mcp_server=workflow_input.use_mcp_server,
+                mcp_server_url=workflow_input.mcp_server_url
+            )
+            result = run_chart_workflow(chart_input)
+
         result["intent_confidence"] = confidence
 
     else:
