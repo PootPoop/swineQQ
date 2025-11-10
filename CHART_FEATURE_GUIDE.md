@@ -48,7 +48,7 @@ Orchestrates the chart generation workflow:
 
 #### 3. **chart_renderer.py**
 Renders interactive Plotly charts:
-- Supports 6 chart types: line, bar, scatter, multi_line, grouped_bar, heatmap
+- Supports 7 chart types: line, bar, scatter, multi_line, grouped_bar, pie, heatmap
 - Automatic color schemes and styling
 - Threshold line support for KPI visualization
 - Responsive and interactive
@@ -180,7 +180,14 @@ Example: "Compare disease rates by farm and barn"
 Example: "Plot temperature vs mortality correlation"
 ```
 
-### 6. Heatmap
+### 6. Pie Chart
+**Use for:** Proportions, distribution breakdowns
+```
+Example: "Show me mortality distribution by farm as a pie chart"
+Example: "Pie chart of disease cases by type"
+```
+
+### 7. Heatmap
 **Use for:** Matrix data, intensity visualization
 ```
 Example: "Show disease distribution across farms and time"

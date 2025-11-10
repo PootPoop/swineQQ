@@ -121,13 +121,13 @@ with st.sidebar:
 messages_container = st.container()
 
 with messages_container:
-    for message in st.session_state.messages:
+    for idx, message in enumerate(st.session_state.messages):
         with st.chat_message(message["role"]):
             if message.get("type") == "chart":
                 # Render chart message
                 st.markdown(message.get("text", ""))
                 if "chart_figure" in message:
-                    st.plotly_chart(message["chart_figure"], use_container_width=True)
+                    st.plotly_chart(message["chart_figure"], use_container_width=True, key=f"chart_{idx}")
                 if "expanders" in message:
                     for expander_data in message["expanders"]:
                         with st.expander(expander_data["title"]):
@@ -242,7 +242,7 @@ def render_chart_result(result, duration):
                 })
 
             # Display chart
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, key="current_chart")
 
             # Chart description
             st.markdown(f"**Chart Type:** {chart_spec['chart_type'].title()}")

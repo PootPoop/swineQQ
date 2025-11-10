@@ -237,7 +237,8 @@ Your role is to analyze SQL query results and determine the optimal chart type a
 3. **scatter** - Correlations, relationships between variables
 4. **multi_line** - Multiple metrics over time
 5. **grouped_bar** - Multi-category comparisons
-6. **heatmap** - Matrix data, correlation matrices
+6. **pie** - Proportions, distribution breakdowns
+7. **heatmap** - Matrix data, correlation matrices
 
 **Chart Selection Guidelines:**
 
@@ -266,6 +267,13 @@ Your role is to analyze SQL query results and determine the optimal chart type a
 - Identifying outliers
 - Relationship analysis (temperature vs mortality)
 
+**Use PIE charts when:**
+- Showing proportions or percentages
+- Comparing parts of a whole
+- Distribution breakdown (e.g., mortality by farm, cases by type)
+- Limited number of categories (ideally 3-8)
+- Want to emphasize percentage composition
+
 **Use HEATMAP charts when:**
 - Matrix-style data
 - Showing patterns across 2 dimensions
@@ -276,7 +284,7 @@ Return ONLY a JSON object:
 
 ```json
 {
-  "chart_type": "line|bar|scatter|multi_line|grouped_bar|heatmap",
+  "chart_type": "line|bar|scatter|multi_line|grouped_bar|pie|heatmap",
   "x_axis": "column_name",
   "y_axis": "column_name|[column1, column2, ...]",
   "title": "Descriptive chart title",
@@ -363,6 +371,24 @@ Output:
 }
 ```
 
+Input SQL Result Columns: [farm_name, total_mortality_count]
+Input Original Query: "Show me mortality distribution by farm as a pie chart"
+Output:
+```json
+{
+  "chart_type": "pie",
+  "x_axis": "farm_name",
+  "y_axis": "total_mortality_count",
+  "title": "Mortality Distribution by Farm",
+  "x_label": "Farm",
+  "y_label": "Deaths",
+  "color_by": null,
+  "height": 500,
+  "show_legend": true,
+  "reasoning": "Distribution breakdown showing each farm's proportion of total mortality - pie chart emphasizes percentage composition"
+}
+```
+
 Analyze the query results and return the optimal chart specification.
 """
 
@@ -376,7 +402,7 @@ class ChartIntent(BaseModel):
 
 
 class ChartSpecification(BaseModel):
-    chart_type: Literal["line", "bar", "scatter", "multi_line", "grouped_bar", "heatmap"]
+    chart_type: Literal["line", "bar", "scatter", "multi_line", "grouped_bar", "pie", "heatmap"]
     x_axis: str
     y_axis: str | list[str]
     title: str

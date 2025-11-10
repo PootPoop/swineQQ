@@ -51,9 +51,12 @@ def render_chart(chart_spec: Dict[str, Any], data: List[Dict]) -> go.Figure:
     elif chart_type == "heatmap":
         fig = create_heatmap(df, x_axis, y_axis, title, x_label, y_label)
 
+    elif chart_type == "pie":
+        fig = create_pie_chart(df, x_axis, y_axis, title)
+
     else:
-        # Fallback to simple line chart
-        fig = create_line_chart(df, x_axis, y_axis, title, x_label, y_label, color_by)
+        # Fallback to simple bar chart for categorical data
+        fig = create_bar_chart(df, x_axis, y_axis, title, x_label, y_label, color_by)
 
     # Apply common styling
     fig.update_layout(
@@ -283,6 +286,53 @@ def create_heatmap(df, x_col, y_col, title, x_label, y_label):
         # Fallback to bar chart if heatmap fails
         print(f"Heatmap creation failed: {e}, using bar chart instead")
         fig = create_bar_chart(df, x_col, y_col, title, x_label, y_label, None)
+
+    return fig
+
+
+def create_pie_chart(df, labels_col, values_col, title):
+    """Create a pie chart for categorical distribution"""
+    # Sort by values for better visualization
+    df_sorted = df.sort_values(by=values_col, ascending=False)
+
+    # Limit to top 10 categories for readability
+    if len(df_sorted) > 10:
+        df_top = df_sorted.head(10)
+        # Sum remaining into "Others"
+        others_sum = df_sorted.tail(len(df_sorted) - 10)[values_col].sum()
+        if others_sum > 0:
+            others_row = pd.DataFrame({
+                labels_col: ['Others'],
+                values_col: [others_sum]
+            })
+            df_sorted = pd.concat([df_top, others_row], ignore_index=True)
+        else:
+            df_sorted = df_top
+
+    fig = go.Figure(data=[go.Pie(
+        labels=df_sorted[labels_col],
+        values=df_sorted[values_col],
+        hole=0.3,  # Donut chart style
+        textposition='inside',
+        textinfo='label+percent',
+        hovertemplate='<b>%{label}</b><br>Value: %{value}<br>Percentage: %{percent}<extra></extra>',
+        marker=dict(
+            colors=px.colors.qualitative.Set3,
+            line=dict(color='white', width=2)
+        )
+    )])
+
+    fig.update_layout(
+        title=title,
+        showlegend=True,
+        legend=dict(
+            orientation="v",
+            yanchor="middle",
+            y=0.5,
+            xanchor="left",
+            x=1.05
+        )
+    )
 
     return fig
 
